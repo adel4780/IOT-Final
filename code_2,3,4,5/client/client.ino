@@ -14,11 +14,11 @@ String status = "OFF";
 int time_on = 0;
 int time_off = 0;
 
-void checkServer() {
-  client2.setInsecure(); // Use with caution, this disables SSL verification
-  http.begin(client2, host); // Initialize HTTP with SSL client
+void checkStatus() {
+  client2.setInsecure();
+  http.begin(client2, host); 
   int httpCode = http.GET();
-  if (httpCode == 200) {
+  if (httpCode > 0) {
     String payload = http.getString();
     // Serial.println(payload);
     DynamicJsonDocument doc(1024);
@@ -37,13 +37,12 @@ void setup() {
   delay(10);
   pinMode(ledPin, OUTPUT);
 
-  // Connect to WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+    delay(500);
     Serial.print(".");
   }
   Serial.println("");
@@ -64,6 +63,6 @@ void loop() {
     delay(time_off);
   }
   Serial.printf("Status: %s, time_ON: %d ms, time_OFF: %d ms\n", status.c_str(), time_on, time_off);
-  delay(10); // Wait 5 seconds before checking the server again
-  checkServer();
+  delay(10);
+  checkStatus();
 }
