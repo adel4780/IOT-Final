@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Example</title>
+    <style>
+        body {
+            background-color: #f3e5f5; /* Light purple background */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .form-container {
+            background-color: #ffffff;
+            border: 1px solid #d1c4e9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+        .form-container h2 {
+            color: #4a148c; /* Dark purple */
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            color: #6a1b9a; /* Medium purple */
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+            text-align: left;
+        }
+        .form-container input[type="text"] {
+            padding: 10px;
+            margin: 10px 0;
+            width: calc(100% - 22px);
+            border: 1px solid #d1c4e9;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-container input[type="submit"],
+        .form-container button {
+            background-color: #7e57c2; /* Purple */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+        .form-container input[type="submit"]:hover,
+        .form-container button:hover {
+            background-color: #5e35b1; /* Darker purple */
+        }
+        .form-container button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Timing Form</h2>
+    <div id="status">Status: Loading...</div> <!-- Status display -->
+    <div id="timeOn">Time On: Loading...</div> <!-- Time On display -->
+    <div id="timeOff">Time Off: Loading...</div> <!-- Time Off display -->
+    <button onclick="turnOn()">Turn On</button>
+    <button onclick="turnOff()">Turn Off</button>
+    <form id="scheduleForm">
+        <label for="On">Time (ms) on:</label>
+        <input type="text" name="On" id="On" required>
+        <label for="Off">Time (ms) off:</label>
+        <input type="text" name="Off" id="Off" required>
+        <button type="button" onclick="setScheduled()">Set Scheduled</button>
+    </form>
+</div>
+
+<script>
+    // Function to fetch current status, time_on, and time_off
+    function fetchStatus() {
+        fetch('/getStatus')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = `Status: ${data.status}`;
+                document.getElementById('timeOn').textContent = `Time On: ${data.scheduling.time_on} ms`;
+                document.getElementById('timeOff').textContent = `Time Off: ${data.scheduling.time_off} ms`;
+            })
+            .catch(error => console.error('Error fetching status:', error));
+    }
+
+    // Function to turn the system ON
+    function turnOn() {
+        fetch('/on', { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = `Status: ${data.status}`;
+                document.getElementById('timeOn').textContent = `Time On: ${data.time_on} ms`;
+                document.getElementById('timeOff').textContent = `Time Off: ${data.time_off} ms`;
+                clearInputs(); // Clear input fields
+                window.history.pushState({}, '', '/'); // Update URL to base URL
+            })
+            .catch(error => console.error('Error turning ON:', error));
+    }
+
+    // Function to turn the system OFF
+    function turnOff() {
+        fetch('/off', { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = `Status: ${data.status}`;
+                document.getElementById('timeOn').textContent = `Time On: ${data.time_on} ms`;
+                document.getElementById('timeOff').textContent = `Time Off: ${data.time_off} ms`;
+                clearInputs(); // Clear input fields
+                window.history.pushState({}, '', '/'); // Update URL to base URL
+            })
+            .catch(error => console.error('Error turning OFF:', error));
+    }
+
+    // Function to set scheduled time_on and time_off
+    function setScheduled() {
+    const timeOn = document.getElementById('On').value;
+    const timeOff = document.getElementById('Off').value;
+
+    const url = `/schedule?ON=${timeOn}&OFF=${timeOff}`;
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'x-requested-with': 'XMLHttpRequest' // Mark the request as an AJAX request
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('status').textContent = `Status: ${data.status}`;
+        document.getElementById('timeOn').textContent = `Time On: ${data.scheduling.time_on} ms`;
+        document.getElementById('timeOff').textContent = `Time Off: ${data.scheduling.time_off} ms`;
+        window.history.pushState({}, '', url); // Update URL without reloading the page
+    })
+    .catch(error => console.error('Error setting schedule:', error));
+}
+
+    // Function to clear input fields
+    function clearInputs() {
+        document.getElementById('On').value = '';
+        document.getElementById('Off').value = '';
+    }
+
+    // Fetch initial status when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchStatus();
+    });
+
+    // Prevent form submission (since we use a button for action)
+    document.getElementById('scheduleForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+</script>
+
+</body>
+</html>
