@@ -2,7 +2,7 @@ import telebot
 import requests
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-TOKEN = '7424372977:AAGWFcuuAXbELpwc0kf0ngj0N10MV4DEA5E'  # جایگزین با توکن ربات تلگرام شما
+TOKEN = '...'  # جایگزین با توکن ربات تلگرام شما
 
 API_URL_TURN_ON = 'https://danial.pythonanywhere.com/on'  # URL برای روشن کردن دستگاه
 API_URL_TURN_OFF = 'https://danial.pythonanywhere.com/off'  # URL برای خاموش کردن دستگاه
